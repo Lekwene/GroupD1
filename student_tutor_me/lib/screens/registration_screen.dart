@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_tutor_me/config/palette.dart';
 import 'package:student_tutor_me/model/user_model.dart';
-import 'package:student_tutor_me/screens/account_type.dart';
+import 'package:student_tutor_me/screens/choose_account_type.dart';
+
 import 'package:student_tutor_me/screens/home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
