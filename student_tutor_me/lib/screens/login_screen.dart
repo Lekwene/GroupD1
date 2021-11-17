@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_tutor_me/config/palette.dart';
 import 'package:student_tutor_me/screens/home_screen.dart';
 import 'package:student_tutor_me/screens/registration_screen.dart';
+import 'package:student_tutor_me/screens/reset_password.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 // form key
   final _formKey = GlobalKey<FormState>();
-
+  bool _isVisble = false;
 // editing controller
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
@@ -35,10 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
           return ("Please Enter Your Email");
         }
         // reg expression for email validation
-        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)){
+        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)) {
           return ("Please Enter a Valid Email");
         }
-      return null;
+        return null;
       },
       onSaved: (value) {
         emailController.text = value!;
@@ -56,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final passwordField = TextFormField(
         autofocus: false,
         controller: passwordController,
-        obscureText: true,
+        obscureText: !_isVisble,
         validator: (value) {
           RegExp regex = new RegExp(r'^.{8,}$');
           if (value!.isEmpty) {
@@ -76,6 +77,15 @@ class _LoginScreenState extends State<LoginScreen> {
           hintText: "Password",
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
+          ),
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isVisble = !_isVisble;
+              });
+            },
+            icon:
+                _isVisble ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
           ),
         ));
 
@@ -113,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      height: 180,
+                      height: 10,
                     ),
                     Text(
                       'Welcome ',
@@ -123,32 +133,52 @@ class _LoginScreenState extends State<LoginScreen> {
                     emailField,
                     SizedBox(height: 25),
                     passwordField,
+                    SizedBox(
+                      height: 20,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ResetPassword()));
+                      },
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: ambezi,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                          decorationThickness: 1,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 35),
                     LoginButton,
                     SizedBox(height: 15),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Don't have an account?",
-                          style: subTitle,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        RegistrationScreen()));
-                          },
-                          child: Text(
-                            "SignUp",
-                            style: textButton.copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationThickness: 1),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Don't have an account?",
+                            style: subTitle,
                           ),
-                        )
-                      ])
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          RegistrationScreen()));
+                            },
+                            child: Text(
+                              "SignUp",
+                              style: textButton.copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationThickness: 1),
+                            ),
+                          )
+                        ])
                   ],
                 ),
               ),
@@ -160,18 +190,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 //login function
- void signIn(String email, String password) async {
-   if (_formKey.currentState!.validate()) {
+  void signIn(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
       await _auth
           .signInWithEmailAndPassword(email: email, password: password)
           .then((uid) => {
-               Fluttertoast.showToast(msg: "Login Successful"),
-              Navigator.of(context).pushReplacement(
-                   MaterialPageRoute(builder: (context) => HomeScreen())),
-             })
-              .catchError((e) {
+                Fluttertoast.showToast(msg: "Login Successful"),
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen())),
+              })
+          .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
       });
-   }
+    }
   }
 }

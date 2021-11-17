@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_tutor_me/config/palette.dart';
 import 'package:student_tutor_me/model/user_model.dart';
+import 'package:student_tutor_me/screens/account_type.dart';
 import 'package:student_tutor_me/screens/home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -16,6 +17,19 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
+  bool _isVisble = false;
+  bool _isPasswordEightCharacters = false;
+  bool _hasPasswordOneNumber = false;
+  onPasswordChanged(String password) {
+    final numericRegex = RegExp(r'[0-9]');
+    setState(() {
+      _isPasswordEightCharacters = false;
+      if (password.length >= 8) _isPasswordEightCharacters = true;
+
+      _hasPasswordOneNumber = false;
+      if (numericRegex.hasMatch(password)) _hasPasswordOneNumber = true;
+    });
+  }
 
 // form key
   final _formKey = GlobalKey<FormState>();
@@ -24,9 +38,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController firstNameController = new TextEditingController();
   final TextEditingController lastNameController = new TextEditingController();
   final TextEditingController emailController = new TextEditingController();
-  final TextEditingController phoneNumberController =new TextEditingController();
+  final TextEditingController phoneNumberController =
+      new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
-  final TextEditingController confirmPasswordController =new TextEditingController();
+  final TextEditingController confirmPasswordController =
+      new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       decoration: InputDecoration(
           prefixIcon: Icon(Icons.phone),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "CellNumber",
+          hintText: "Phone Number",
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           )),
@@ -133,28 +149,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     //password feild
     final passwordFeild = TextFormField(
+      onChanged: (password) => onPasswordChanged(password),
       autofocus: false,
       controller: passwordController,
-      obscureText: true,
+      obscureText: !_isVisble,
+   
       // validator: (){},
       onSaved: (value) {
         passwordController.text = value!;
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
+        
           prefixIcon: Icon(Icons.vpn_key),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: "Password",
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-          )),
+          ),
+           suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isVisble = !_isVisble;
+              });
+            },
+            icon:
+                _isVisble ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+          ),
+          ),
     );
 
     //confirm password feild
     final confirmPasswordFeild = TextFormField(
       autofocus: false,
       controller: confirmPasswordController,
-      obscureText: true,
+      obscureText: !_isVisble,
       validator: (value) {
         if (confirmPasswordController.text != passwordController.text) {
           return "Password dont match";
@@ -166,12 +195,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       },
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-          prefixIcon: Icon(Icons.vpn_key),
-          contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "Confirm Password",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          )),
+        prefixIcon: Icon(Icons.vpn_key),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Confirm Password",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+                   suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _isVisble = !_isVisble;
+              });
+            },
+            icon:
+                _isVisble ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+          ),
+      ),
     );
 
     //signup button
@@ -186,7 +225,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           signUp(emailController.text, passwordController.text);
         },
         child: Text(
-          "SignUp",
+          "Continue",
           textAlign: TextAlign.center,
           style: TextStyle(
               fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
@@ -215,7 +254,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           child: Container(
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.all(36.0),
+              padding: defaultPadding,
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -223,7 +262,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      height: 120,
+                      height: 0,
                     ),
                     Text(
                       'Registration',
@@ -241,6 +280,68 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     passwordFeild,
                     SizedBox(height: 20),
                     confirmPasswordFeild,
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 500),
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                              color: _isPasswordEightCharacters
+                                  ? Colors.green
+                                  : Colors.transparent,
+                              border: _isPasswordEightCharacters
+                                  ? Border.all(color: Colors.transparent)
+                                  : Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: Center(
+                            child: Icon(
+                              Icons.check,
+                              color: white,
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text("Contains at least 8 characters")
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 500),
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                              color: _hasPasswordOneNumber
+                                  ? Colors.green
+                                  : Colors.transparent,
+                              border: _hasPasswordOneNumber
+                                  ? Border.all(color: Colors.transparent)
+                                  : Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: Center(
+                            child: Icon(
+                              Icons.check,
+                              color: white,
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text("Contains at least 1 number")
+                      ],
+                    ),
                     SizedBox(height: 20),
                     signUpButton,
                     SizedBox(
@@ -288,11 +389,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         .collection("users")
         .doc(user.uid)
         .set(userModel.toMap());
-    Fluttertoast.showToast(msg: "Account created successfully :)");
+    //  Fluttertoast.showToast(msg: "Account created successfully :)");
 
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => AcountTypeScreen()),
         (route) => false);
   }
 }
